@@ -12,5 +12,17 @@ var makeList = function(n) {
   }
   return root;
 };
+var makeListFromArray = function(nums) {
+  let root = new ListNode(nums[0]);
+  let last = root;
+  for (let i = 1; i < nums.length; i++) {
+    let cur = new ListNode(nums[i]);
+    last.next = cur;
+    last = cur;
+  }
+  return root;
+};
 // export { makeList, ListNode };
-export default ListNode;
+exports.ListNode = ListNode;
+exports.makeList = makeList;
+exports.makeListFromArray = makeListFromArray;
