@@ -3,20 +3,64 @@
  */
 var LRUCache = function(capacity) {
   this.cache = {};
-  this.index = [];
+  this.size = 0;
+  this.head = new DLinkedNode();
+  this.tail = new DLinkedNode();
+  this.head.next = this.tail;
+
   this.capacity = capacity;
 };
 
+var DLinkedNode = function() {};
+LRUCache.prototype.addNode = function(node) {
+  /**
+   * Always add the new node right after head.
+   */
+  let { head } = this;
+  node.prev = head;
+  node.next = head.next;
+
+  head.next.prev = node;
+  head.next = node;
+};
+
+LRUCache.prototype.removeNode = function(node) {
+  /**
+   * Remove an existing node from the linked list.
+   */
+  prev = node.prev;
+  next = node.next;
+
+  prev.next = next;
+  next.prev = prev;
+};
+
+LRUCache.prototype.moveToHead = function(node) {
+  /**
+   * Move certain node in between to the head.
+   */
+  this.removeNode(node);
+  this.addNode(node);
+};
+LRUCache.prototype.popTail = function() {
+  /**
+   * Pop the current tail.
+   */
+  res = this.tail.prev;
+  this.removeNode(res);
+  return res;
+};
 /**
  * @param {number} key
  * @return {number}
  */
 LRUCache.prototype.get = function(key) {
-  let data = this.cache[key] != null ? this.cache[key] : -1;
-  this.index = this.index.filter(idx => idx != key);
-  this.index.push(key);
-  // console.log(JSON.stringify(this.index));
-  return data;
+  if (this.cache[key]) {
+    this.moveToHead(this.cache[key]);
+    return this.cache[key].val;
+  } else {
+    return -1;
+  }
 };
 
 /**
@@ -25,14 +69,23 @@ LRUCache.prototype.get = function(key) {
  * @return {void}
  */
 LRUCache.prototype.put = function(key, value) {
-  if (!this.cache[key]) {
-    this.index.push(key);
+  if (this.cache[key]) {
+    this.moveToHead(this.cache[key]);
+    this.cache[key].val = value;
+  } else {
+    let node = new DLinkedNode();
+    node.val = value;
+    node.key = key;
+    this.addNode(node);
+    this.cache[key] = node;
+    this.size++;
+    if (this.size > this.capacity) {
+      // pop the tail
+      let tail = this.popTail();
+      this.cache[tail.key] = null;
+      this.size--;
+    }
   }
-  if (!this.cache[key] && this.index.length > this.capacity) {
-    let lruKey = this.index.shift();
-    this.cache[lruKey] = null;
-  }
-  this.cache[key] = value;
 };
 
 /**
@@ -42,7 +95,6 @@ LRUCache.prototype.put = function(key, value) {
  * obj.put(key,value)
  */
 let cache = new LRUCache(2 /* 缓存容量 */);
-
 console.log(cache.put(1, 1));
 console.log(cache.put(2, 2));
 console.log(cache.get(1)); // 返回  1

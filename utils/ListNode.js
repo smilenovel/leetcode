@@ -22,7 +22,49 @@ var makeListFromArray = function(nums) {
   }
   return root;
 };
+
+var detectCycle = function(head) {
+  if (!head || !head.next) {
+    return null;
+  }
+  let slowPtr = head;
+  let fastPtr = head;
+  let intersect;
+  while (slowPtr && fastPtr) {
+    if (slowPtr == fastPtr) {
+      return true;
+    }
+    if (fastPtr.next) {
+      fastPtr = fastPtr.next.next;
+    } else {
+      fastPtr = fastPtr.next;
+    }
+    slowPtr = slowPtr.next;
+  }
+  return false;
+};
+
+var listToArray = function(head) {
+  let cur = head;
+  let ret = [];
+  let maxCount = -1;
+  if (detectCycle(head)) {
+    console.log('cycle refer');
+    maxCount = 10;
+  }
+  let count = 0;
+  while (cur) {
+    ret.push(cur.val);
+    count++;
+    if (maxCount != -1 && count > maxCount) {
+      break;
+    }
+    cur = cur.next;
+  }
+  return ret;
+};
 // export { makeList, ListNode };
 exports.ListNode = ListNode;
 exports.makeList = makeList;
 exports.makeListFromArray = makeListFromArray;
+exports.listToArray = listToArray;
