@@ -18,7 +18,7 @@ var buildNodes = function(input, level, start, count) {
   );
   for (let i = start; i < start + count; i++) {
     let val = input[i];
-    if (!val) {
+    if (val === null) {
       ret.push(null);
     } else {
       let left = childNodes.shift() || null;
